@@ -1,32 +1,44 @@
 package main
 
 import (
-	M "ble_mqtt/helper/MQ"
-	routes "ble_mqtt/routers"
 	"fmt"
-	"net/http"
 	"strings"
 
-	"github.com/gorilla/handlers"
+	controller "spo2_server/controller"
+	M "spo2_server/helper/MQ"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/spf13/viper"
 )
 
 func init() {
 	//log.SetLevel(log.DebugLevel)
+	InitConfig()
+	controller.InitController()
 }
 
 func main() {
 	// c := make(chan os.Signal, 1)
 	// signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	M.MqttClientInit("", "", "")
-	// <-c
+	// // <-c
 
-	headers := handlers.AllowedHeaders([]string{"X-Request-With", "Content-Type", "Authorization"})
-	methods := handlers.AllowedMethods([]string{"GET", "PUT", "POST", "DELETE"})
-	origins := handlers.AllowedOrigins([]string{"*"})
-	router := routes.NewRouter()
-	http.ListenAndServe(":8087", handlers.CORS(headers, methods, origins)(router))
+	// headers := handlers.AllowedHeaders([]string{"X-Request-With", "Content-Type", "Authorization"})
+	// methods := handlers.AllowedMethods([]string{"GET", "PUT", "POST", "DELETE"})
+	// origins := handlers.AllowedOrigins([]string{"*"})
+	// router := routes.NewRouter()
+	// http.ListenAndServe(":8087", handlers.CORS(headers, methods, origins)(router))
+	r := gin.Default()
+	r.LoadHTMLGlob("./views/*.html")          // complains about /static being a dir on boot
+	r.LoadHTMLFiles("./views/static/*/*")     //  load the static path
+	r.Static("/static", "./views/static")     // use the loaded source
+	r.StaticFile("/spo2", "views/index.html") // use the loaded source
+
+	r.GET("/db/:deviceId", controller.List)
+	r.GET("/id/list", controller.ListId)
+
+	r.Run(":8087")
 }
 
 func InitConfig() {
@@ -41,9 +53,4 @@ func InitConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
-	connectString := "sqlserver://" + viper.GetString("user") + ":" + viper.GetString("password") +
-		"@" + viper.GetString("host") + ":" + viper.GetString("port") + "?database=" + viper.GetString("db") + "&connection+timeout=30"
-
-	viper.Set("connectString", connectString) // same result as next line
-
 }

@@ -7,6 +7,8 @@ import (
 	"time"
 	t "time"
 
+	"github.com/spf13/viper"
+
 	"go.mongodb.org/mongo-driver/mongo"
 	_mongo "go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -25,8 +27,7 @@ func Connect_Mongo(addr string) *_mongo.Collection {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://admin1:821224@localhost:27017/Spo2"))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(viper.GetString("Mongo")))
 
 	if err != nil {
 		log.Fatal(err)
@@ -95,7 +96,7 @@ func FindOne(collection *_mongo.Collection, deviceid string) bool {
 	}
 }
 
-func FindOnlyId(collection *_mongo.Collection, deviceid string) interface{} {
+func FindOnlyId(collection *_mongo.Collection) interface{} {
 	var resultArray []interface{} = make([]interface{}, 0)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -104,7 +105,7 @@ func FindOnlyId(collection *_mongo.Collection, deviceid string) interface{} {
 	cur, err := collection.Find(ctx, find_data)
 	defer cur.Close(ctx)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 	for cur.Next(ctx) {
 		var result bson.M

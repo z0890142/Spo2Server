@@ -1,16 +1,17 @@
 package MQTT
 
 import (
-	db "ble_mqtt/helper/Mongo"
-	"ble_mqtt/model"
 	"encoding/json"
 	"fmt"
+	db "spo2_server/helper/Mongo"
+	"spo2_server/model"
 	"time"
 
 	_mongo "go.mongodb.org/mongo-driver/mongo"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	paho "github.com/eclipse/paho.mqtt.golang"
+	"github.com/spf13/viper"
 )
 
 var mongodb *_mongo.Collection
@@ -21,7 +22,8 @@ var f paho.MessageHandler = func(client paho.Client, msg paho.Message) {
 }
 
 func MqttClientInit(address string, clientID string, apiKey string) {
-	opts := paho.NewClientOptions().AddBroker("tcp://127.0.0.1:1883") //"tcp://localhost:1883"
+	fmt.Println(viper.GetString("broker"))
+	opts := paho.NewClientOptions().AddBroker(viper.GetString("broker")) //"tcp://localhost:1883"
 	opts.SetClientID(clientID)
 	opts.SetDefaultPublishHandler(f)
 	opts.SetAutoReconnect(true)                                  //自动链接？！

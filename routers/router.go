@@ -3,7 +3,7 @@ package routes
 import (
 	"net/http"
 
-	controller "ble_mqtt/controller"
+	controller "spo2_server/controller"
 
 	"github.com/gorilla/mux"
 )
@@ -19,8 +19,8 @@ var routes []Route
 
 func init() {
 
-	register("GET", "/db", controller.List, nil)
-	register("GET", "/db/list", controller.ListId, nil)
+	register("GET", "/db/{deviceId}", controller.List, nil)
+	register("GET", "/id/list", controller.ListId, nil)
 
 }
 
