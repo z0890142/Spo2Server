@@ -1,48 +1,42 @@
 package controller
 
 import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
-	Mongo "spo2_server/helper/Mongo"
+	Mysql "spo2_server/helper/Mysql"
+	"spo2_server/model"
 
 	"github.com/gin-gonic/gin"
-	_mongo "go.mongodb.org/mongo-driver/mongo"
+	"github.com/jmoiron/sqlx"
 )
 
-var db *_mongo.Collection
+var dbTag *sqlx.DB
 
-func InitController() {
-	db = Mongo.Connect_Mongo("")
+func init() {
+	Mysql.CreateDbConn("mysql", "root@tcp(127.0.0.1:3306)/Spo2_Tag1")
+
 }
-
-// func List(w http.ResponseWriter, r *http.Request) {
-// 	_, err := ioutil.ReadAll(io.LimitReader(r.Body, 1024)) //io.LimitReader限制大小
-// 	if err != nil {
-// 	}
-// 	vars := mux.Vars(r)
-// 	id := vars["deviceId"]
-// 	services.ResponseWithJson(w, http.StatusOK, Mongo.FindOneByApi(db, id))
-
-// }
-
-// func ListId(w http.ResponseWriter, r *http.Request) {
-// 	_, err := ioutil.ReadAll(io.LimitReader(r.Body, 1024)) //io.LimitReader限制大小
-// 	if err != nil {
-// 	}
-
-// 	services.ResponseWithJson(w, http.StatusOK, Mongo.FindOnlyId(db))
-
-// }
-
 func List(c *gin.Context) {
 
 	id := c.Param("deviceId")
-	c.JSON(http.StatusOK, Mongo.FindOneByApi(db, id))
-	// services.ResponseWithJson(w, http.StatusOK, Mongo.FindOneByApi(db, id))
+	c.JSON(http.StatusOK, Mysql.GetSpo2Data(id))
+
 }
 func ListId(c *gin.Context) {
+	c.JSON(http.StatusOK, Mysql.GetDeviceIDList())
+}
+func InsertTag(c *gin.Context) {
+	var insertObject model.InsertTag
+	body, _ := ioutil.ReadAll(c.Request.Body)
+	err := json.Unmarshal(body, &insertObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	Mysql.InsertTag(insertObject)
 
-	c.JSON(http.StatusOK, Mongo.FindOnlyId(db))
-
-	// services.ResponseWithJson(w, http.StatusOK, Mongo.FindOnlyId(db))
+	c.JSON(http.StatusOK, Mysql.GetDeviceIDList())
 
 }

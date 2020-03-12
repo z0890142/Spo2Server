@@ -8,3 +8,9 @@ type Reocrd struct {
 	dpm  int32
 	time int64
 }
+
+type InsertTag struct {
+	Start int64
+	End   int64
+	Tag   int
+}

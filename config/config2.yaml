@@ -1,0 +1,4 @@
+
+broker : tcp://140.138.154.66:1883
+# Mongo : mongodb://admin1:821224@localhost:27017/Spo2
+Mongo : mongodb://admin:Ecg1609c@10.1.1.25:27017/Spo2
